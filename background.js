@@ -1,30 +1,65 @@
 // Default interval (in milliseconds)
-let interval = 5 * 60 * 1000; // 5 minutes
+let interval = 1 * 60 * 1000; // 1 minute
+let timeoutId;
+const path="/nagios4/cgi-bin/statusjson.cgi?query=servicelist&servicestatus=critical";
 
 // Function to fetch and parse JSON data with the specified interval
 function fetchJSONPeriodically() {
     // Retrieve the URL from chrome.storage
-    chrome.storage.sync.get('jsonURL', function (items) {
-        const url = items.jsonURL;
+    chrome.storage.sync.get({url:'',
+        username:'',
+        password:''}, function (items) {
+        const url = items.url;
+        const username = items.username;
+        const password = items.password;
 
         if(url) {
+            console.log("username = " + username + ", password = " + password);
+            let headers = new Headers();
+            headers.set('Authorization', 'Basic ' + btoa(username + ":" + password));
             // Fetch and parse JSON data
-            fetch(url)
+            fetch(url + path,
+                {method:'GET',
+                    // mode: "no-cors",
+                    headers: headers
+                })
                 .then(response => response.json())
-                .then(data => {
+                .then(record => {
                     // Process the JSON data
-                    console.log('Parsed JSON:', data);
+                    let numberOfCriticalServices = getNumberOfFlaggedServices(record);
+                    if(numberOfCriticalServices > 0) {
+                        chrome.action.setBadgeText({ text: "" + numberOfCriticalServices });
+                        chrome.action.setBadgeBackgroundColor({ color: "red" });
+                    } else {
+                        chrome.action.setBadgeText({ text: 'OK' });
+                        chrome.action.setBadgeBackgroundColor({ color: "green" });
+                    }
+
                     // Perform additional actions with the parsed data here
+                    chrome.storage.sync.set({
+                        record: record
+                    }, function() {
+                        console.log('Lista sparad.');
+                    });
                 })
                 .catch(error => {
-                    console.error('Error fetching JSON:', error);
+                    chrome.action.setBadgeText({ text: "!" });
+                    chrome.action.setBadgeBackgroundColor({ color: "orange" });
+
+                    chrome.storage.sync.set({
+                        record: ''
+                    }, function() {
+                        console.log('Lista rensad.');
+                    });
+
+                    console.error('Fel vid hämtning av json:', error);
                 });
         } else {
-            console.log('No URL set in options, skipping fetch');
+            console.log('Ingen URL satt, hoppar över hämtning av data');
         }
 
         // Call fetchJSONPeriodically again after the interval
-        setTimeout(fetchJSONPeriodically, interval);
+        timeoutId = setTimeout(fetchJSONPeriodically, interval);
     });
 }
 
@@ -36,11 +71,21 @@ chrome.storage.sync.get('interval', function (items) {
 });
 
 // Listen for changes to the interval in chrome.storage
-chrome.storage.onChanged.addEventListener(function (changes) {
-    if (changes.interval) {
+chrome.storage.onChanged.addListener(function (changes) {
+    if (changes.interval || changes.url || changes.username || changes.password) {
         interval = changes.interval.newValue || interval;
         // Restart fetching JSON with the updated interval
-        clearTimeout(fetchTimeout);
+        clearTimeout(timeoutId);
         fetchJSONPeriodically();
     }
 });
+
+function getNumberOfFlaggedServices(record) {
+    let number = 0;
+    if(record) {
+        for (let i = 0; i < Object.keys(record.data.servicelist).length; i++) {
+            number += Object.keys(Object.values(record.data.servicelist)[i]).length;
+        }
+    }
+    return number;
+}

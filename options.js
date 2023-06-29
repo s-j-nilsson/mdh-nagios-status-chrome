@@ -5,14 +5,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function saveSettings() {
-    var jsonURL = document.getElementById('jsonURL').value;
+    var url = document.getElementById('url').value;
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
+    var interval = document.getElementById('interval').value;
 
     chrome.storage.sync.set({
-        jsonURL: jsonURL,
+        url: url,
         username: username,
-        password: password
+        password: password,
+        interval: interval
     }, function() {
         console.log('Settings saved.');
     });
@@ -20,12 +22,14 @@ function saveSettings() {
 
 function restoreSettings() {
     chrome.storage.sync.get({
-        jsonURL: '',
+        url: '',
         username: '',
-        password: ''
+        password: '',
+        interval: ''
     }, function(items) {
-        document.getElementById('jsonURL').value = items.jsonURL;
+        document.getElementById('url').value = items.url;
         document.getElementById('username').value = items.username;
         document.getElementById('password').value = items.password;
+        document.getElementById('interval').value = items.interval;
     });
 }
