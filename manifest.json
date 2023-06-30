@@ -3,8 +3,7 @@
   "name": "Mdu Nagios Status",
   "version": "1.0",
   "permissions": [
-    "storage",
-    "tabs"
+    "storage"
   ],
   "host_permissions": ["http://monitoring-dev.ita.mdh.se/nagios4/*",
     "http://monitoring-prod.ita.mdh.se/nagios4/*"],
@@ -19,7 +18,7 @@
   },
   "options_ui": {
     "page": "options.html",
-    "open_in_tab": true
+    "open_in_tab": false
   },
   "background": {
     "service_worker": "background.js"

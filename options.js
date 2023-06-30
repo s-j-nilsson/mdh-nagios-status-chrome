@@ -18,6 +18,7 @@ function saveSettings() {
     }, function() {
         console.log('Settings saved.');
     });
+    window.close();
 }
 
 function restoreSettings() {
