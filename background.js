@@ -1,7 +1,7 @@
 // Default interval (in milliseconds)
 let interval = 1 * 60 * 1000; // 1 minute
 let timeoutId;
-const path="/nagios4/cgi-bin/statusjson.cgi?query=servicelist&servicestatus=critical";
+const path="/nagios4/cgi-bin/statusjson.cgi?query=servicelist";
 
 // Function to fetch and parse JSON data with the specified interval
 function fetchJSONPeriodically() {
@@ -25,15 +25,9 @@ function fetchJSONPeriodically() {
                 })
                 .then(response => response.json())
                 .then(record => {
-                    // Process the JSON data
-                    let numberOfCriticalServices = getNumberOfFlaggedServices(record);
-                    if(numberOfCriticalServices > 0) {
-                        chrome.action.setBadgeText({ text: "" + numberOfCriticalServices });
-                        chrome.action.setBadgeBackgroundColor({ color: "red" });
-                    } else {
-                        chrome.action.setBadgeText({ text: 'OK' });
-                        chrome.action.setBadgeBackgroundColor({ color: "green" });
-                    }
+                    let badgeTextAndColor = findBadgeTextAndColor(record);
+                    chrome.action.setBadgeText({ text: badgeTextAndColor.text });
+                    chrome.action.setBadgeBackgroundColor({ color: badgeTextAndColor.color });
 
                     // Perform additional actions with the parsed data here
                     chrome.storage.sync.set({
@@ -63,6 +57,28 @@ function fetchJSONPeriodically() {
     });
 }
 
+function findBadgeTextAndColor(record) {
+    let critical = 0;
+    let warning = 0;
+
+    for (let i = 0; i < Object.keys(record.data.servicelist).length; i++) {
+        for (let j = 0; j < Object.keys(Object.values(record.data.servicelist)[i]).length; j++) {
+            let status = Object.values(Object.values(record.data.servicelist)[i])[j];
+
+            if(status == 16) {
+                critical++;
+            } else if(status == 4) {
+                warning++;
+            }
+        }
+    }
+    if(critical == 0 && warning == 0) {
+      return {text: 'OK', color:'green'};
+    } else if(critical >= warning) {
+        return {text: "" + critical, color:'red'};
+    } else return {text: "" + warning, color:'yellow'};
+}
+
 // Retrieve the interval from chrome.storage
 chrome.storage.sync.get('interval', function (items) {
     interval = items.interval || interval;
@@ -79,13 +95,3 @@ chrome.storage.onChanged.addListener(function (changes) {
         fetchJSONPeriodically();
     }
 });
-
-function getNumberOfFlaggedServices(record) {
-    let number = 0;
-    if(record) {
-        for (let i = 0; i < Object.keys(record.data.servicelist).length; i++) {
-            number += Object.keys(Object.values(record.data.servicelist)[i]).length;
-        }
-    }
-    return number;
-}
