@@ -14,7 +14,6 @@ function fetchJSONPeriodically() {
         const password = items.password;
 
         if(url) {
-            console.log("username = " + username + ", password = " + password);
             let headers = new Headers();
             headers.set('Authorization', 'Basic ' + btoa(username + ":" + password));
             // Fetch and parse JSON data
@@ -33,19 +32,19 @@ function fetchJSONPeriodically() {
                     chrome.storage.sync.set({
                         record: record
                     }, function() {
-                        console.log('Lista sparad.');
+                        console.log('Lista av Nagios-tjänster sparad.');
                     });
                 })
                 .catch(error => {
                     chrome.action.setBadgeText({ text: "!" });
                     chrome.action.setBadgeBackgroundColor({ color: "orange" });
 
-                    console.error('Fel vid hämtning av json:', error);
+                    console.error('Fel vid hämtning av Nagios-data:', error);
 
                     chrome.storage.sync.set({
                         record: ''
                     }, function() {
-                        console.log('Lista rensad efter fel vid hämtning.');
+                        console.log('Lista av Nagios-tjänster rensad efter fel vid hämtning.');
                     });
                 });
         } else {
@@ -89,7 +88,6 @@ chrome.storage.sync.get('interval', function (items) {
 // Listen for changes to the interval in chrome.storage
 chrome.storage.onChanged.addListener(function (changes) {
     if (changes.interval || changes.url || changes.username || changes.password) {
-        console.log("Ändring i inställningar - laddar om data");
         interval = changes.interval || interval;
         // Restart fetching JSON with the updated interval
         clearTimeout(timeoutId);
