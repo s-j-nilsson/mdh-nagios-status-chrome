@@ -2,10 +2,11 @@ chrome.storage.sync.get({
     record: '',
     url: ''
 }, function(items) {
+    console.log("Laddar popup...")
     const record = items.record;
     const url = items.url;
 
-    function getStatusClass(status, serviceTdElement) {
+    function getStatusClass(status) {
         if (status == 4) {
             return "table-warning";
         } else if (status == 16) {
@@ -16,6 +17,9 @@ chrome.storage.sync.get({
     }
 
     if(record) {
+        let warningAlertElement = document.getElementById("warningdiv");
+        warningAlertElement.className += " d-none";
+
         let tableElement = document.createElement('table');
         tableElement.className="table";
 

@@ -40,13 +40,13 @@ function fetchJSONPeriodically() {
                     chrome.action.setBadgeText({ text: "!" });
                     chrome.action.setBadgeBackgroundColor({ color: "orange" });
 
+                    console.error('Fel vid hämtning av json:', error);
+
                     chrome.storage.sync.set({
                         record: ''
                     }, function() {
-                        console.log('Lista rensad.');
+                        console.log('Lista rensad efter fel vid hämtning.');
                     });
-
-                    console.error('Fel vid hämtning av json:', error);
                 });
         } else {
             console.log('Ingen URL satt, hoppar över hämtning av data');
@@ -89,7 +89,8 @@ chrome.storage.sync.get('interval', function (items) {
 // Listen for changes to the interval in chrome.storage
 chrome.storage.onChanged.addListener(function (changes) {
     if (changes.interval || changes.url || changes.username || changes.password) {
-        interval = changes.interval.newValue || interval;
+        console.log("Ändring i inställningar - laddar om data");
+        interval = changes.interval || interval;
         // Restart fetching JSON with the updated interval
         clearTimeout(timeoutId);
         fetchJSONPeriodically();
