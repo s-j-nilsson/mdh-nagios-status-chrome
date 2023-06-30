@@ -64,14 +64,14 @@ function findBadgeTextAndColor(record) {
         for (let j = 0; j < Object.keys(Object.values(record.data.servicelist)[i]).length; j++) {
             let status = Object.values(Object.values(record.data.servicelist)[i])[j];
 
-            if(status == 16) {
+            if(status === 16) {
                 critical++;
-            } else if(status == 4) {
+            } else if(status === 4) {
                 warning++;
             }
         }
     }
-    if(critical == 0 && warning == 0) {
+    if(critical === 0 && warning === 0) {
       return {text: 'OK', color:'green'};
     } else if(critical >= warning) {
         return {text: "" + critical, color:'red'};

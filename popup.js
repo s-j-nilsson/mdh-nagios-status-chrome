@@ -72,7 +72,6 @@ chrome.storage.sync.get({
 
 document.addEventListener('DOMContentLoaded', function() {
     var filters = document.getElementsByClassName('form-check-input');
-    console.log("checkbox changed")
     for (const filter of filters) {
         filter.addEventListener('change', function() {
             if (this.checked) {
