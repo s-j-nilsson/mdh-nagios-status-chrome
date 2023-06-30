@@ -7,9 +7,9 @@ chrome.storage.sync.get({
     const url = items.url;
 
     function getStatusClass(status) {
-        if (status == 4) {
+        if (status === 4) {
             return "table-warning";
-        } else if (status == 16) {
+        } else if (status === 16) {
             return "table-danger";
         } else {
             return "";
