@@ -71,7 +71,7 @@ chrome.storage.sync.get({
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    var filters = document.getElementsByClassName('form-check-input');
+    const filters = document.getElementsByClassName('form-check-input');
     for (const filter of filters) {
         filter.addEventListener('change', function() {
             if (this.checked) {
