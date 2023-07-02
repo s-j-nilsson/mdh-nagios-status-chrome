@@ -6,11 +6,11 @@ chrome.storage.sync.get({
     const record = items.record;
     const url = items.url;
 
-    function getStatusClass(status) {
+    function getStatusClasses(status) {
         if (status === 4) {
-            return "table-warning";
+            return {bgColor: 'bg-warning', textColor: 'black'};
         } else if (status === 16) {
-            return "table-danger";
+            return {bgColor: 'bg-danger', textColor: 'white'};
         } else {
             return "";
         }
@@ -36,17 +36,19 @@ chrome.storage.sync.get({
             let serviceArr = [];
 
             for (let j = 0; j < Object.keys(Object.values(record.data.servicelist)[i]).length; j++) {
-                let link=document.createElement("a");
+
                 let servicename = Object.keys(Object.values(record.data.servicelist)[i])[j];
                 let status = Object.values(Object.values(record.data.servicelist)[i])[j];
 
                 let trElement = document.createElement("tr");
 
                 let serviceTdElement = document.createElement("td");
-                let statusClass = getStatusClass(status);
-                if(statusClass) {
-                    serviceTdElement.className = statusClass;
+                let statusClasses = getStatusClasses(status);
+                if(statusClasses) {
+                    serviceTdElement.className = statusClasses.bgColor;
 
+                    let link=document.createElement("a");
+                    link.style.color = statusClasses.textColor;
                     link.href = url + "/cgi-bin/nagios4/extinfo.cgi?type=2&host=" + hostname + "&service=" + servicename.replace(" ", "+");
                     link.innerHTML = servicename;
                     link.target = "_blank";

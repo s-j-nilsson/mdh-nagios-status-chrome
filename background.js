@@ -5,7 +5,12 @@ const path="/nagios4/cgi-bin/statusjson.cgi?query=servicelist";
 
 // Function to fetch and parse JSON data with the specified interval
 function fetchJSONPeriodically() {
-    // Retrieve the URL from chrome.storage
+    function setErrorBadge() {
+        chrome.action.setBadgeText({text: "X"});
+        chrome.action.setBadgeBackgroundColor({color: "gray"});
+    }
+
+// Retrieve the URL from chrome.storage
     chrome.storage.sync.get({url:'',
         username:'',
         password:''}, function (items) {
@@ -36,8 +41,7 @@ function fetchJSONPeriodically() {
                     });
                 })
                 .catch(error => {
-                    chrome.action.setBadgeText({ text: "!" });
-                    chrome.action.setBadgeBackgroundColor({ color: "orange" });
+                    setErrorBadge();
 
                     console.error('Fel vid hämtning av Nagios-data:', error);
 
@@ -49,6 +53,7 @@ function fetchJSONPeriodically() {
                 });
         } else {
             console.log('Ingen URL satt, hoppar över hämtning av data');
+            setErrorBadge();
         }
 
         // Call fetchJSONPeriodically again after the interval
@@ -73,9 +78,9 @@ function findBadgeTextAndColor(record) {
     }
     if(critical === 0 && warning === 0) {
       return {text: 'OK', color:'green'};
-    } else if(critical >= warning) {
+    } else if(critical > 0) {
         return {text: "" + critical, color:'red'};
-    } else return {text: "" + warning, color:'yellow'};
+    } else return {text: "" + warning, color:'orange'};
 }
 
 // Retrieve the interval from chrome.storage
