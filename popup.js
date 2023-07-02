@@ -76,13 +76,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const filters = document.getElementsByClassName('form-check-input');
     for (const filter of filters) {
         filter.addEventListener('change', function() {
+            let statusDiv = document.querySelector('#statusdiv');
+            let elementsByClassName = statusDiv.querySelectorAll('.' + this.value);
             if (this.checked) {
-                let elementsByClassName = document.getElementsByClassName(this.value);
                 for (const elementsByClassNameElement of elementsByClassName) {
                     elementsByClassNameElement.style.display='table-cell';
                 }
             } else {
-                let elementsByClassName = document.getElementsByClassName(this.value);
                 for (const elementsByClassNameElement of elementsByClassName) {
                     elementsByClassNameElement.style.display='none';
                 }
