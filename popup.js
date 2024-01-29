@@ -20,19 +20,10 @@ chrome.storage.sync.get({
         let warningAlertElement = document.getElementById("warningdiv");
         warningAlertElement.className += " d-none";
 
-        let tableElement = document.createElement('table');
-        tableElement.className="table";
 
-        let tbodyElement = document.createElement("tbody");
 
         for (let i = 0; i < Object.keys(record.data.servicelist).length; i++) {
             let hostname=Object.keys(record.data.servicelist)[i];
-            let hostnameTrElement = document.createElement("tr");
-            let hostnamneThElement = document.createElement('th');
-            hostnamneThElement.setAttribute("scope", "row");
-            hostnamneThElement.innerHTML=hostname;
-            hostnameTrElement.appendChild(hostnamneThElement);
-
             let serviceArr = [];
 
             for (let j = 0; j < Object.keys(Object.values(record.data.servicelist)[i]).length; j++) {
@@ -60,17 +51,32 @@ chrome.storage.sync.get({
             }
 
             if(serviceArr.length > 0) {
-                tbodyElement.appendChild(hostnameTrElement);
+                let tableElement = document.createElement('table');
+                tableElement.className="table";
+
+                let theadElement = document.createElement("thead");
+                theadElement.className="table-dark";
+                let hostnameTrElement = document.createElement("tr");
+                let hostnamneThElement = document.createElement('th');
+
+                hostnamneThElement.innerHTML=hostname;
+                hostnameTrElement.appendChild(hostnamneThElement);
+                theadElement.appendChild(hostnameTrElement);
+                tableElement.appendChild(theadElement);
+
+                let tbodyElement = document.createElement("tbody");
+                // tbodyElement.appendChild(hostnameTrElement);
                 for (const serviceElement of serviceArr) {
                     tbodyElement.appendChild(serviceElement);
                 }
+                tableElement.appendChild(tbodyElement);
+                document.getElementById('statusdiv').appendChild(tableElement);
             }
+
         }
-        tableElement.appendChild(tbodyElement);
-        document.getElementById('statusdiv').appendChild(tableElement);
+
     }
 });
-
 
 document.addEventListener('DOMContentLoaded', function() {
     const filters = document.getElementsByClassName('form-check-input');
